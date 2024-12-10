@@ -27,6 +27,7 @@ def main():
     parser.add_argument("exposures")
     parser.add_argument("--nights", default=".*")
     parser.add_argument("--steps", nargs="+")
+    parser.add_argument("--proc-types", nargs="+", default=["bias", "flat", "drp"])
     parser.add_argument("--where")
     parser.add_argument("--log-level", default="INFO")
     parser.add_argument("--slurm", action="store_true")
@@ -67,7 +68,7 @@ def main():
     futures = [] # chage to dictionary
     for night in nights:
         inputs = []
-        for proc_type in ["bias", "flat", "drp"]:
+        for proc_type in args.proc_types:
             cmd = [
                 "python",
                 "bin/ingest.py",
