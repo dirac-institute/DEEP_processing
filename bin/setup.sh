@@ -17,7 +17,7 @@ source "${PROC_LSST_DIR}"/bin/proc_lsst.sh
 
 opt_lsst setup w_2024_30 #w_2023_38
 # proc_lsst setup
-export PROC_LSST_PARSL_INSTALL_DIR=$DEEP_PROJECT_DIR/parsl
+export PROC_LSST_WORKER_INIT="source ${DEEP_PROJECT_DIR}/bin/setup.sh"
 source "${PROC_LSST_DIR}"/bin/setup.sh
 
 source "${DEEP_PROJECT_DIR}"/data/credentials
