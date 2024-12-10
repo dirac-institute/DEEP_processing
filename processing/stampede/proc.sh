@@ -12,9 +12,6 @@ function cleanup() {
 trap cleanup SIGINT
 trap cleanup SIGTERM
 
-cd $w
-source $w/bin/setup.sh
-
 ./bin/db_ctl.sh ./repo start
 $@
 ./bin/db_ctl.sh ./repo stop
