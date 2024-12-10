@@ -1,0 +1,11 @@
+description: |
+  Mean template
+imports:
+  - ${DEEP_PROJECT_DIR}/pipelines/DEEP-template.yaml
+
+tasks:
+  assembleCoadd:
+    class: lsst.drp.tasks.assemble_coadd.CompareWarpAssembleCoaddTask
+    config:
+      statistic: MEAN
+      assembleStaticSkyModel.statistic: MEAN
