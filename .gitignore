@@ -171,3 +171,7 @@ data/fakes/**/*.fits
 data/fakes/**/*.ecsv
 data/refcats/*
 modules
+monitor.sqlite
+runinfo
+submit
+init_repo*
