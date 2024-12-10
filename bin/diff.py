@@ -56,7 +56,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("repo")
-    parser.add_argument("coadd_name")
+    parser.add_argument("subset")
     parser.add_argument("--template-type", default="")
     parser.add_argument("--coadd-subset", default="")
     parser.add_argument("--where")
@@ -69,7 +69,7 @@ def main():
     #         "butler",
     #         "associate",
     #         args.repo,
-    #         f"DEEP/{args.coadd_name}/coadd/warps",
+    #         f"DEEP/{args.subset}/coadd/warps",
     #         "--dataset-type", dataset_type,
     #     ]
     #     if args.collections:
@@ -83,7 +83,7 @@ def main():
     #     "python",
     #     "bin/warps.py",
     #     args.repo,
-    #     os.path.normpath(f"{args.coadd_name}/{args.coadd_subset}"),
+    #     os.path.normpath(f"{args.subset}/{args.coadd_subset}"),
     # ]
     # if args.collections:
     #     cmd += ["--collections"] + args.collections
@@ -101,7 +101,7 @@ def main():
         "bin/collection.py",
         args.repo,
         "diff_drp",
-        args.coadd_name,
+        args.subset,
     ]
     if args.template_type:
         cmd += ["--template-type", args.template_type]
@@ -118,7 +118,7 @@ def main():
         "python",
         "bin/execute.py",
         args.repo,
-        os.path.normpath(f"DEEP/{args.coadd_name}/{args.coadd_subset}/diff_drp/{args.template_type}"),
+        os.path.normpath(f"DEEP/{args.subset}/{args.coadd_subset}/{args.template_type}/diff_drp"),
         "--pipeline", f"./pipelines/DEEP-DRP.yaml#step4a",
     ]
     # cmd = " ".join(map(str, cmd))
@@ -133,7 +133,7 @@ def main():
         "bin/collection.py",
         args.repo,
         "diff_drp",
-        args.coadd_name,
+        args.subset,
     ]
     if args.template_type:
         cmd += ["--template-type", args.template_type]

@@ -1,3 +1,4 @@
+import os
 import logging
 
 logging.basicConfig()
@@ -13,7 +14,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("repo")
-    parser.add_argument("coadd_type")
+    parser.add_argument("subset")
     parser.add_argument("--collections", nargs="+", default=[])
     parser.add_argument("--where")
     parser.add_argument("--log-level", default="INFO")
@@ -24,7 +25,7 @@ def main():
 
     butler = dafButler.Butler(args.repo, writeable=True)
 
-    tagged = f"DEEP/{args.coadd_type}/coadd/warps"
+    tagged = os.path.normpath(f"DEEP/{args.subset}/coadd/warps")
     
     if args.collections:
         collections = butler.registry.queryCollections(args.collections)

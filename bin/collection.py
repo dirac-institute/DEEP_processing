@@ -36,11 +36,11 @@ inputs = dict(
         "DEEP/{subset}/drp/raw",
     ],
     coadd=[
-        "DEEP/{subset}/{coadd_subset}/coadd/warps",
+        "DEEP/{subset}/coadd/warps",
         "skymaps",
     ],
     diff_drp=[
-        "DEEP/{subset}/{coadd_subset}/coadd/{template_type}", # coadds
+        "DEEP/{coadd_subset}/{template_type}/coadd", # coadds
         "DEEP/{subset}/drp", # calexp
     ]
 )
@@ -71,7 +71,7 @@ def main():
 
     butler = dafButler.Butler(args.repo, writeable=True)
 
-    parent = os.path.normpath(f"DEEP/{args.subset}/{args.coadd_subset}/{args.proc_type}/{args.template_type}")
+    parent = os.path.normpath(f"DEEP/{args.subset}/{args.coadd_subset}/{args.template_type}/{args.proc_type}")
     
     input_collections = list(map(lambda x : os.path.normpath(x.format(subset=args.subset, template_type=args.template_type, coadd_subset=args.coadd_subset)), inputs[args.proc_type]))
     input_runs = butler.registry.queryCollections(parent + "/*", collectionTypes=CollectionType.RUN)

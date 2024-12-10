@@ -28,12 +28,14 @@ pipelines = dict(
     flat="DEEP-flat.yaml",
     science="DEEP-science.yaml",
     drp="DEEP-DRP.yaml",
+    coadd="DEEP-template.yaml",
+    diff_drp="DEEP-DRP.yaml",
 )
 
 import parsl
 from parsl import bash_app
 from parsl.executors import HighThroughputExecutor
-from deep.parsl import EpycProvider, KloneAstroProvider, run_command
+from deep.parsl import EpycProvider, KloneA40Provider, run_command
 from functools import partial
 
 def main():
@@ -46,7 +48,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("repo")
     parser.add_argument("proc_type")
-    parser.add_argument("--nights")
+    parser.add_argument("subset") # to support coadd/diff_drp replace nights with subset and add template-type and coadd-subset as an option...
+    parser.add_argument("--template-type", default="")
+    parser.add_argument("--coadd-subset", default="")
     parser.add_argument("--steps", nargs="+")
     parser.add_argument("--where")
     parser.add_argument("--log-level", default="INFO")
@@ -61,7 +65,7 @@ def main():
     executor_kwargs = dict()
     
     if args.slurm:
-        provider = KloneAstroProvider(max_blocks=args.workers)
+        provider = KloneA40Provider(max_blocks=args.workers)
     else:
         provider = EpycProvider(max_blocks=1)
         executor_kwargs = dict(
@@ -81,12 +85,19 @@ def main():
     parsl.load(config)
 
     butler = dafButler.Butler(args.repo)
-    collections = butler.registry.queryCollections(re.compile(f"DEEP/{args.nights}/{args.proc_type}"), collectionTypes=CollectionType.CHAINED)
+    collections = butler.registry.queryCollections(
+        re.compile(
+            os.path.normpath(f"DEEP/{args.subset}/{args.coadd_subset}/{args.template_type}/{args.proc_type}")
+        ), 
+        collectionTypes=CollectionType.CHAINED
+    )
 
     pipeline = pipelines[args.proc_type]
     futures = []
     for collection in collections:
-        _, night, _ = collection.split("/")
+        l = collection.split("/")
+        subset = l[1]
+        # _, night, _ = collection.split("/")
         inputs = []
         for step in args.steps:
             cmd = [
@@ -94,11 +105,16 @@ def main():
                 "bin/collection.py",
                 args.repo,
                 args.proc_type,
-                night,
+                subset,
             ]
+            if args.template_type:
+                cmd += ["--template-type", args.template_type]
+            if args.coadd_subset:
+                cmd += ["--coadd-subset", args.coadd_subset]
+
             cmd = " ".join(map(str, cmd))
             func = partial(run_command)
-            setattr(func, "__name__", f"collection_{night}_{args.proc_type}_{step}")
+            setattr(func, "__name__", f"collection_{subset}_{args.proc_type}_{step}")
             future = bash_app(func)(cmd, inputs=inputs)
             inputs = [future]
             futures.append(future)
@@ -114,7 +130,7 @@ def main():
                 cmd += [f"--where \"{args.where}\""]
             cmd = " ".join(map(str, cmd))
             func = partial(run_command)
-            setattr(func, "__name__", f"execute_{night}_{args.proc_type}_{step}")
+            setattr(func, "__name__", f"execute_{subset}_{args.proc_type}_{step}")
             future = bash_app(func)(cmd, inputs=inputs)
             inputs = [future]
             futures.append(future)
@@ -125,11 +141,15 @@ def main():
                 "bin/collection.py",
                 args.repo,
                 args.proc_type,
-                night,
+                subset,
             ]
+            if args.template_type:
+                cmd += ["--template-type", args.template_type]
+            if args.coadd_subset:
+                cmd += ["--coadd-subset", args.coadd_subset]
             cmd = " ".join(map(str, cmd))
             func = partial(run_command)
-            setattr(func, "__name__", f"collection_{night}_{args.proc_type}_{step}")
+            setattr(func, "__name__", f"collection_{subset}_{args.proc_type}_{step}")
             future = bash_app(func)(cmd, inputs=inputs)
             inputs = [future]
             futures.append(future)

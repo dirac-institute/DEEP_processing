@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 import parsl
 from parsl import bash_app
 from parsl.executors import HighThroughputExecutor
-from deep.parsl import EpycProvider, KloneAstroProvider, run_command
+from deep.parsl import EpycProvider, KloneAstroProvider, KloneA40Provider, run_command
 from functools import partial
 
 proc_to_obs = dict(
@@ -30,6 +30,8 @@ def main():
     parser.add_argument("--where")
     parser.add_argument("--log-level", default="INFO")
     parser.add_argument("--slurm", action="store_true")
+    parser.add_argument("--pipeline-slurm", action="store_true")
+    parser.add_argument("--provider", default="EpycProvider")
     parser.add_argument("--workers", "-J", type=int, default=4)
 
     args = parser.parse_args()
@@ -40,7 +42,7 @@ def main():
     executor_kwargs = dict()
     
     if args.slurm:
-        provider = KloneAstroProvider(max_blocks=args.workers)
+        provider = KloneA40Provider(max_blocks=args.workers)
     else:
         provider = EpycProvider(max_blocks=1)
         executor_kwargs = dict(
@@ -62,7 +64,7 @@ def main():
     exposures = astropy.table.Table.read(args.exposures)
     nights = sorted(map(int, list(set(list(filter(lambda x : re.compile(args.nights).match(x), map(str, exposures['night'])))))))
     
-    futures = []
+    futures = [] # chage to dictionary
     for night in nights:
         inputs = []
         for proc_type in ["bias", "flat", "drp"]:
@@ -130,10 +132,10 @@ def main():
                     "bin/pipeline.py",
                     args.repo,
                     proc_type,
-                    "--nights", night,
+                    night,
                     "--steps"
                 ] + steps
-                if args.slurm:
+                if args.pipeline_slurm:
                     cmd += ["--slurm"]
                 if args.where:
                     cmd += [f"--where \"{args.where}\""]
@@ -182,6 +184,7 @@ def main():
                     "2000-01-01T00:00:00",
                     "--end-date",
                     "2050-01-01T00:00:00",
+                    "--search-all-inputs"
                 ]
                 cmd = " ".join(map(str, cmd))
                 func = partial(run_command)
@@ -197,10 +200,10 @@ def main():
                     "bin/pipeline.py",
                     args.repo,
                     proc_type,
-                    "--nights", night,
+                    night,
                     "--steps"
                 ] + steps
-                if args.slurm:
+                if args.pipeline_slurm:
                     cmd += ["--slurm"]
                 if args.where:
                     cmd += [f"--where \"{args.where}\""]
@@ -237,6 +240,7 @@ def main():
                     "2000-01-01T00:00:00",
                     "--end-date",
                     "2050-01-01T00:00:00",
+                    "--search-all-inputs"
                 ]
                 cmd = " ".join(map(str, cmd))
                 func = partial(run_command)
@@ -257,10 +261,10 @@ def main():
                     "bin/pipeline.py",
                     args.repo,
                     proc_type,
-                    "--nights", night,
+                    night,
                     "--steps", 
                 ] + steps
-                if args.slurm:
+                if args.pipeline_slurm:
                     cmd += ["--slurm"]
                 if args.where:
                     cmd += [f"--where \"{args.where}\""]

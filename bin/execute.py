@@ -108,10 +108,12 @@ def should_run(repo, collection, pipeline, data_query=None, skip_existing=True, 
     return True
 
 
-def submit(repo, parent, pipeline_path, data_query=None, skip_existing=True, skip_failures=True):
-    run = construct_run(parent, pipeline_path)
+def submit(repo, parent, pipeline_path, data_query=None, skip_existing=True, skip_failures=True, loop=False):
+    
     fixup_chain(repo, parent)
-    if (not skip_existing and not skip_failures) or should_run(repo, parent, pipeline_path, data_query=data_query, skip_existing=skip_existing, skip_failures=skip_failures):
+
+    def inner():
+        run = construct_run(parent, pipeline_path)
         qgraph_file = os.path.join(os.environ.get('TMPDIR', "/tmp"), run.replace("/", "_") + ".qgraph")
         cmd = [
             "pipetask",
@@ -151,6 +153,19 @@ def submit(repo, parent, pipeline_path, data_query=None, skip_existing=True, ski
             raise RuntimeError("bps submit failed")
         fixup_chain(repo, parent) # append run to chain
 
+    check = lambda : should_run(repo, parent, pipeline_path, data_query=data_query, skip_existing=skip_existing, skip_failures=skip_failures)
+
+    if loop:
+        if skip_existing and skip_failures:
+            # continue generating qgraph and running until there are no more failures
+            while check():
+                inner()
+    else:
+        # run once
+        if (not skip_existing and not skip_failures) or check():
+            inner()
+
+
 def main():
     """
     Executes a pipeline on an input collection chain
@@ -164,6 +179,7 @@ def main():
     parser.add_argument("--where")
     parser.add_argument("--no-skip-existing", action="store_true")
     parser.add_argument("--no-skip-failures", action="store_true")
+    parser.add_argument("--no-loop", action="store_true")
 
     args = parser.parse_args()
     # print(args)
@@ -175,6 +191,7 @@ def main():
         data_query=args.where,
         skip_existing=not args.no_skip_existing,
         skip_failures=not args.no_skip_failures,
+        loop=not args.no_loop,
     )
 
 if __name__ == "__main__":
