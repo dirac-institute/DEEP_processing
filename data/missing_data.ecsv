@@ -1,0 +1,15 @@
+# %ECSV 1.0
+# ---
+# datatype:
+# - {name: observation_type, datatype: string}
+# - {name: caldat, datatype: string}
+# - {name: band, datatype: string, subtype: json}
+# schema: astropy-2.0
+observation_type caldat band
+flat 2019-05-05 """VR"""
+flat 2019-05-05 """r"""
+bias 2020-10-19 null
+flat 2020-10-19 """VR"""
+flat 2020-10-19 """r"""
+flat 2022-05-25 """VR"""
+flat 2022-05-25 """r"""
