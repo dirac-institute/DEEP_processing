@@ -14,12 +14,13 @@ class DefaultsProvider():
 
 class KloneProvider(DefaultsProvider, SlurmProvider):
     defaults = dict(
-        cpus_per_node=1,
+        nodes_per_block=1,
+        cores_per_node=1,
         mem_per_node=8,
         init_blocks=0,
         min_blocks=0,
         parallelism=1,
-        walltime="4:00:00",
+        walltime="24:00:00",
         exclusive=False
     )
 
@@ -29,10 +30,9 @@ class KloneProvider(DefaultsProvider, SlurmProvider):
                 kwargs[k] = v
         super().__init__(*args, **kwargs)        
 
-
 class KloneAstroProvider(KloneProvider):
     defaults = dict(
-        partition="astro",
+        partition="compute-bigmem",
         account="astro",
         max_blocks=4,
     ) | KloneProvider.defaults
@@ -42,6 +42,21 @@ class KloneCheckpointProvider(KloneProvider):
         partition="ckpt-all",
         account="astro-ckpt",
         max_blocks=64,
+        walltime="4:00:00",
+    )
+
+class KloneRtx6kProvider(KloneProvider):
+    defaults = KloneProvider.defaults | dict(
+        partition="gpu-rtx6k",
+        account="escience",
+        max_blocks=8,
+    )
+
+class KloneA40Provider(KloneProvider):
+    defaults = KloneProvider.defaults | dict(
+        partition="gpu-a40",
+        account="escience",
+        max_blocks=16,
     )
 
 class EpycProvider(DefaultsProvider, LocalProvider):
