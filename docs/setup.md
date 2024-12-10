@@ -65,7 +65,19 @@ $ rsync -avL ./data/images/ stetzler@stampede3.tacc.utexas.edu:/scratch/10000/st
 
 Copy over the modules
 ```
-rsync -avL ./modules stetzler@stampede3.tacc.utexas.edu:/scratch/10000/stetzler/DEEP_processing/.
+$ rsync -avL ./modules stetzler@stampede3.tacc.utexas.edu:/scratch/10000/stetzler/DEEP_processing/.
+```
+
+Copy over credentials
+```
+$ scp ./data/credentials stetzler@stampede3.tacc.utexas.edu:/scratch/10000/stetzler/DEEP_processing/data/credentials
+```
+
+Create env on Stampede:
+```
+$ cd $SCRATCH/DEEP_processing
+$ source bin/setup.sh
+$ python -m pip install --target ./env --no-deps ./modules/parsl
 ```
 
 Copy over the initial repository:
