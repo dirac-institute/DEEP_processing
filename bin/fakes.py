@@ -19,36 +19,33 @@ def main():
 
     fakes = astropy.table.Table.read(args.fakes)
 
-    if 'RA' in fakes.columns:
-        fakes['ra'] = fakes['RA']
-    if 'DEC' in fakes.columns:
-        fakes['dec'] = fakes['DEC']
-    if 'MAG' in fakes.columns:
-        fakes['mag'] = fakes['MAG']
+    def rename_if_not_exist(x, y, default=None):
+        if y not in fakes.columns:
+            if x in fakes.columns:
+                fakes.rename_columns([x], [y])
+            elif default is not None:
+                fakes[y] = default
+
+    rename_if_not_exist("RA", "ra")
+    rename_if_not_exist("DEC", "dec")
+    rename_if_not_exist("MAG", "mag")
+    rename_if_not_exist("BAND", "band", default="VR")
+
     if 'source_type' not in fakes.columns:
         fakes['source_type'] = "DeltaFunction"
-    if 'BAND' in fakes.columns:
-        fakes['band'] = fakes['BAND']
 
     butler = dafButler.Butler(args.repo, writeable=True)
-    
-    if "band" in fakes.columns:
-        for group in fakes.group_by("band").groups:
-            refs = ingest_injection_catalog(
-                writeable_butler=butler,
-                table=group,
-                band=group[0]['band'],
-                output_collection=args.collection,
-            )
-            print("ingested", len(group), "fakes into", len(refs), "datasets")
-    else:
+    for group in fakes.group_by("band").groups:
+        band = group[0]['band']
+        if band == "Y": # alias doesn't work for some reason https://github.com/lsst/obs_decam/blob/main/python/lsst/obs/decam/decamFilters.py#L39
+            band = 'y'
         refs = ingest_injection_catalog(
             writeable_butler=butler,
-            table=fakes,
-            band="VR",
+            table=group,
+            band=band,
             output_collection=args.collection,
         )
-        print("ingested", len(fakes), "fakes into", len(refs), "datasets")
+        print("ingested", len(group), f"{band}-band fakes into", len(refs), "datasets")
 
 if __name__ == "__main__":
     main()

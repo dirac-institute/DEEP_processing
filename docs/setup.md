@@ -42,7 +42,7 @@ $ butler write-curated-calibrations ${REPO} lsst.obs.decam.DarkEnergyCamera
 $ butler register-skymap ${REPO} -c name='discrete'
 $ bash ./bin/ingest_refcats.sh # ingest refcats for images
 $ python ./bin/defects.py ${REPO} ./data/bpm # get defects
-$ python ./bin/fakes.py ${REPO} ./data/fakes/derived/ingest.ecsv --collection DEEP/fakes
+$ python ./bin/fakes.py ${REPO} ./data/fakes/derived/ingest.fits --collection DEEP/fakes
 $ ./bin/db_ctl.sh $REPO stop
 $ cp -r $REPO init_repo.bak # make a backup of the repository
 ```
