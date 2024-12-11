@@ -11,6 +11,7 @@ function cleanup() {
 
 trap cleanup SIGINT
 trap cleanup SIGTERM
+trap cleanup SIGEXIT
 
 ./bin/db_ctl.sh ./repo start
 $@
