@@ -39,9 +39,9 @@ def main():
     tno_ephem = fakes_pre_binaries[c]
     tno_ephem_with_binaries = fakes_with_binaries[c]
 
-    asteroid_ephem.write(outdir / "asteroid_ephem.ecsv")
-    tno_ephem.write(outdir / "tno_ephem.ecsv")
-    tno_ephem_with_binaries.write(outdir / "tno_ephem_with_binaries.ecsv")
+    asteroid_ephem.write(outdir / "asteroid_ephem.fits")
+    tno_ephem.write(outdir / "tno_ephem.fits")
+    tno_ephem_with_binaries.write(outdir / "tno_ephem_with_binaries.fits")
 
     # ingestion catalog
     c = ['ORBITID', 'EXPNUM', 'RA', 'DEC', 'MAG']
@@ -57,32 +57,32 @@ def main():
     # add source_type
     ingest['source_type'] = 'DeltaFunction'
 
-    ingest.write(outdir / "ingest.ecsv")
+    ingest.write(outdir / "ingest.fits")
 
     # population states
     c = ['ORBITID', 'aei', 'xv']
     asteroid_pop_states = asteroid_orbits[c]
     tno_pop_states = tno_orbits[c]
 
-    asteroid_pop_states.write(outdir / "asteroid_population_states.ecsv")
-    tno_pop_states.write(outdir / "tno_population_states.ecsv")
+    asteroid_pop_states.write(outdir / "asteroid_population_states.fits")
+    tno_pop_states.write(outdir / "tno_population_states.fits")
 
     # survey states
     c = ['ORBITID', 'aei', 'xv']
     asteroid_survey_states = grouped_table(asteroid_positions, "ORBITID", c)
     tno_survey_states = grouped_table(fakes_pre_binaries, "ORBITID", c)  
 
-    asteroid_survey_states.write(outdir / "asteroid_survey_states.ecsv")
-    tno_survey_states.write(outdir / "tno_survey_states.ecsv")
+    asteroid_survey_states.write(outdir / "asteroid_survey_states.fits")
+    tno_survey_states.write(outdir / "tno_survey_states.fits")
 
     # properties
     c = ['ORBITID', 'H_VR', 'AMP', 'PERIOD', 'PHASE']
     asteroid_properties = grouped_table(asteroid_positions, "ORBITID", c)
     tno_properties = grouped_table(fakes_pre_binaries, "ORBITID", c) 
 
-    asteroid_properties.write(outdir / "asteroid_properties.ecsv")
-    tno_properties.write(outdir / "tno_properties.ecsv")
-    binary_properties.write(outdir / "binary_properties.ecsv")
+    asteroid_properties.write(outdir / "asteroid_properties.fits")
+    tno_properties.write(outdir / "tno_properties.fits")
+    binary_properties.write(outdir / "binary_properties.fits")
 
 if __name__ == "__main__":
     main()
