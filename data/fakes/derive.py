@@ -56,6 +56,8 @@ def main():
     ingest.rename_columns(['RA', 'DEC', 'MAG'], ['ra', 'dec', 'mag'])
     # add source_type
     ingest['source_type'] = 'DeltaFunction'
+    # trim bright objects
+    ingest = ingest[ingest['mag'] > 16]
 
     ingest.write(outdir / "ingest.fits")
 
