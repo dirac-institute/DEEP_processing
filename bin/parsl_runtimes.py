@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 import re
 import astropy.table
+import sys
 
 # https://stackoverflow.com/questions/46258499/how-to-read-the-last-line-of-a-file-in-python
 def tail(filename, n=1):
@@ -148,8 +149,11 @@ def usage_for_workflows(workflows):
     for w in workflows:
         if w['runinfo']:
             usage = workflow_cpu_usage(w['runinfo'])
-            usage['run_id'] = w['run_id']
-            workflow_usage.append(usage)
+            if len(usage) > 0:
+                usage['run_id'] = w['run_id']
+                workflow_usage.append(usage)
+            else:
+                print("no usage info can be parsed from", w['runinfo'], file=sys.stderr)
 
     workflow_usage = astropy.table.vstack(workflow_usage)
 
@@ -157,7 +161,6 @@ def usage_for_workflows(workflows):
 
 def main():
     import argparse
-    import sys
     
     parser = argparse.ArgumentParser()
     parser.add_argument("runinfo_dir", type=Path)
