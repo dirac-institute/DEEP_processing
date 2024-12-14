@@ -4,6 +4,7 @@ def main():
     import sys
     import lsst.daf.butler as dafButler
     import astropy.table
+    from pathlib import Path
 
     parser = argparse.ArgumentParser()
     parser.add_argument("repo")
@@ -47,6 +48,8 @@ def main():
         timing_info.append(d)
     
     timing_info = astropy.table.Table(timing_info)
+    if args.output != sys.stdout and args != sys.stderr:
+        Path(args.output).parent.mkdir(parents=True, exist_ok=True)
     timing_info.write(args.output, format=args.format)
 
 if __name__ == "__main__":
