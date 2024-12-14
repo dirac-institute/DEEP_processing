@@ -28,19 +28,27 @@ def head(filename, n=1):
     return lines
 
 def parse_manager_params(filename):
-    cores = None
-    workers = None
+    cores = -1
+    workers = -1
+    workers_spawn = -1
     with open(filename, "r") as f:
-        while cores is None or workers is None:
-            l = f.readline()
+        while l := f.readline():
+            if all([x != -1 for x in [cores, workers, workers_spawn]]):
+                break
 
-            if "cores_per_worker:" in l:
-                cores = float(l.split("cores_per_worker:")[1].strip())
-            m = re.compile(".*Manager will spawn (\d+) workers.*").match(l)
-            if m:
-                workers = int(m.groups()[0])
+            if cores == -1 and "cores_per_worker:" in l:
+                cores = int(float(l.split("cores_per_worker:")[1].strip()))
+            if workers == -1 and "max_workers_per_node:" in l:
+                workers = int(float(l.split("max_workers_per_node:")[1].strip()))
+            if workers == -1 and "max_workers:" in l:
+                workers = int(float(l.split("max_workers:")[1].strip()))
+            
+            if workers_spawn == -1:
+                m = re.compile(".*Manager will spawn (\d+) workers.*").match(l)
+                if m:
+                    workers_spawn = int(m.groups()[0])
 
-    return cores, workers
+    return cores, workers, workers_spawn
 
 def worker_usage(worker):
     tasks_complete = 0
@@ -68,7 +76,10 @@ def workflow_cpu_usage(runinfo_dir):
         start = datetime.fromisoformat("T".join(head(manager)[0].split(" ")[0:2]))
         end = datetime.fromisoformat("T".join(tail(manager)[0].split(" ")[0:2]))
         
-        cores, workers = parse_manager_params(manager)
+        cores, workers, workers_spawn = parse_manager_params(manager)
+        if workers_spawn > 0:
+            workers = workers_spawn
+
         tasks = 0
         work = 0
         for worker in manager.parent.glob("worker_*.log"):
@@ -121,7 +132,6 @@ def parse_workflow(execute):
             m = re.compile(".*Run id is: (.*)\n").match(l)
             if m is not None:
                 run_id = m.groups()[0]
-                
             
             m = re.compile(".*run_dir='(.*)'.*").match(l)
             if m is not None:
