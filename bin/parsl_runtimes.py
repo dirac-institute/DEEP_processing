@@ -36,10 +36,9 @@ def parse_manager_params(filename):
 
             if "cores_per_worker:" in l:
                 cores = float(l.split("cores_per_worker:")[1].strip())
-            if "max_workers_per_node:" in l:
-                workers = float(l.split("max_workers_per_node:")[1].strip())
-            if "max_workers:" in l:
-                workers = float(l.split("max_workers:")[1].strip())
+            m = re.compile(".*Manager will spawn (\d+) workers.*").match(l)
+            if m:
+                workers = int(m.groups()[0])
 
     return cores, workers
 
