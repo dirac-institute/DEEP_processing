@@ -162,7 +162,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("runinfo_dir", type=Path)
     parser.add_argument("search", type=str)
-    parser.add_argument("--output", nargs="?", default=sys.stderr)
+    parser.add_argument("--output", nargs="?", default=sys.stdout)
     parser.add_argument("--format", default="ascii.fast_csv")
 
     args = parser.parse_args()
