@@ -4,6 +4,10 @@ from datetime import datetime
 import re
 import astropy.table
 import sys
+import logging
+
+logging.basicConfig()
+logger = logging.getLogger(__name__)
 
 # https://stackoverflow.com/questions/46258499/how-to-read-the-last-line-of-a-file-in-python
 def tail(filename, n=1):
@@ -31,28 +35,30 @@ def parse_manager_params(filename):
     cores = -1
     workers = -1
     workers_spawn = -1
+    logger.debug("parsing %s", filename)
     with open(filename, "r") as f:
         while l := f.readline():
             if all([x != -1 for x in [cores, workers, workers_spawn]]):
                 break
 
             if cores == -1 and "cores_per_worker:" in l:
-                cores = int(float(l.split("cores_per_worker:")[1].strip()))
+                cores = float(l.split("cores_per_worker:")[1].strip())
             if workers == -1 and "max_workers_per_node:" in l:
-                workers = int(float(l.split("max_workers_per_node:")[1].strip()))
+                workers = float(l.split("max_workers_per_node:")[1].strip())
             if workers == -1 and "max_workers:" in l:
-                workers = int(float(l.split("max_workers:")[1].strip()))
+                workers = float(l.split("max_workers:")[1].strip())
             
             if workers_spawn == -1:
                 m = re.compile(".*Manager will spawn (\d+) workers.*").match(l)
                 if m:
                     workers_spawn = int(m.groups()[0])
 
-    return cores, workers, workers_spawn
+    return float(cores), float(workers), float(workers_spawn)
 
 def worker_usage(worker):
     tasks_complete = 0
     work = 0
+    logger.debug("parsing %s", worker)
     with open(worker, "r") as f:
         received = None
         completed = None
@@ -127,6 +133,7 @@ def parse_workflow(execute):
     run_id = ""
     run_info_prefix = ""
     run_info = ""
+    logger.debug("parsing %s", execute)
     with open(execute, "r") as f:
         while l := f.readline():
             m = re.compile(".*Run id is: (.*)\n").match(l)
@@ -176,8 +183,11 @@ def main():
     parser.add_argument("search", type=str)
     parser.add_argument("--output", nargs="?", default=sys.stdout)
     parser.add_argument("--format", default="ascii.fast_csv")
+    parser.add_argument("--log-level", default="INFO")
 
     args = parser.parse_args()
+
+    logger.setLevel(getattr(logging, args.log_level.upper()))
 
     workflows = []
     for p in Path(args.runinfo_dir).rglob(args.search):
