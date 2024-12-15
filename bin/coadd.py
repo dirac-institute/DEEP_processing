@@ -135,6 +135,8 @@ def main():
         os.path.normpath(f"DEEP/{args.coadd_name}/{args.coadd_subset}/coadd/{args.template_type}"),
         "--pipeline", f"./pipelines/{pipeline_lookup[args.template_type]}#assembleCoadd",
     ]
+    if args.where:
+        cmd += [f"--where \"{args.where}\""]
     # cmd = " ".join(map(str, cmd))
     # print(cmd)
     p = run_and_pipe(cmd)

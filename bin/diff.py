@@ -121,6 +121,8 @@ def main():
         os.path.normpath(f"DEEP/{args.subset}/{args.coadd_subset}/{args.template_type}/diff_drp"),
         "--pipeline", f"./pipelines/DEEP-DRP.yaml#step4a",
     ]
+    if args.where:
+        cmd += [f"--where \"{args.where}\""]
     # cmd = " ".join(map(str, cmd))
     # print(cmd)
     p = run_and_pipe(cmd)
