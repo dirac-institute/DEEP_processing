@@ -16,5 +16,5 @@ export PROC_LSST_MAX_BLOCKS="6" # ${PROC_LSST_MAX_BLOCKS:-1}
 export J=5 # cores per worker for local
 env | grep PROC_LSST
 
-bash $w/processing/stampede/proc.sh python $w/bin/night.py $REPO $w/data/exposures.ecsv --proc-types bias --workers 9  
+bash $w/processing/stampede/proc.sh python $w/bin/night.py $REPO $w/data/exposures.ecsv --workers 40 "$@" 
 
