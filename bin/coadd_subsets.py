@@ -16,6 +16,11 @@ import selectors
 import sys
 import atexit
 
+def delay():
+    import time
+    import random
+    time.sleep(random.randint(1, 5) + random.randint(0, 10)/10)
+
 processes = []
 
 def cleanup():
@@ -132,6 +137,8 @@ def main():
         inputs = [future]
         futures.append(future)
             
+        delay()
+
         cmd = [
             "python",
             "bin/pipeline.py",
@@ -153,6 +160,8 @@ def main():
         inputs = [future]
         futures.append(future)
 
+        delay()
+
         cmd = [
             "python",
             "bin/collection.py",
@@ -170,6 +179,8 @@ def main():
         future = bash_app(func)(cmd, inputs=inputs)
         inputs = [future]
         futures.append(future)
+
+        delay()
 
     for future in futures:
         if future:
