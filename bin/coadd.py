@@ -10,7 +10,7 @@ from parsl import bash_app
 from parsl.executors import HighThroughputExecutor
 from functools import partial
 from deep.parsl import run_command
-from deep.parsl import EpycProvider, KloneAstroProvider, run_command
+from deep.parsl import EpycProvider, KloneAstroProvider, KloneA40Provider, run_command
 from subprocess import Popen, PIPE
 import selectors
 import sys
@@ -75,41 +75,39 @@ def main():
     parser.add_argument("--coadd-subset", default="")
     parser.add_argument("--where")
     parser.add_argument("--collections", nargs="+", default=[])
+    parser.add_argument("--log-level", default="INFO")
+    parser.add_argument("--slurm", action="store_true")
+    parser.add_argument("--pipeline-slurm", action="store_true")
+    parser.add_argument("--provider", default="EpycProvider")
+    parser.add_argument("--workers", "-J", type=int, default=4)
     
     args = parser.parse_args()
 
-    # for dataset_type in ["deepCoadd_directWarp", "deepCoadd_psfMatchedWarp"]:
-    #     cmd = [
-    #         "butler",
-    #         "associate",
-    #         args.repo,
-    #         f"DEEP/{args.coadd_name}/coadd/warps",
-    #         "--dataset-type", dataset_type,
-    #     ]
-    #     if args.collections:
-    #         cmd += ["--collections", args.collections]
-    #     if args.where:
-    #         cmd += [f"--where '{args.where}'"]
-    #     cmd = " ".join(map(str, cmd))
-    #     print(cmd)
+    htex_label = "htex"
+    executor_kwargs = dict()
+    
+    if args.slurm:
+        provider = KloneA40Provider(max_blocks=args.workers)
+    else:
+        provider = EpycProvider(max_blocks=1)
+        executor_kwargs = dict(
+            max_workers=args.workers
+        )
+    
+    executor_kwargs['provider'] = provider
+    config = parsl.Config(
+        executors=[
+            HighThroughputExecutor(
+                label=htex_label,
+                **executor_kwargs,
+            )
+        ],
+        run_dir=os.path.join("runinfo", "coadd"),
+    )
+    parsl.load(config)
 
-    # cmd = [
-    #     "python",
-    #     "bin/warps.py",
-    #     args.repo,
-    #     os.path.normpath(f"{args.coadd_name}/{args.coadd_subset}"),
-    # ]
-    # if args.collections:
-    #     cmd += ["--collections"] + args.collections
-    # if args.where:
-    #     cmd += ['--where', args.where]
-    # # cmd = " ".join(map(str, cmd))
-    # # print(cmd)
-    # p = run_and_pipe(cmd)
-    # p.wait()
-    # if p.returncode != 0:
-    #     raise RuntimeError("warps failed")
-
+    futures = [] # chage to dictionary
+    inputs = []
     cmd = [
         "python",
         "bin/collection.py",
@@ -123,11 +121,17 @@ def main():
         cmd += ["--coadd-subset", args.coadd_subset]
     # cmd = " ".join(map(str, cmd))
     # print(cmd)
-    p = run_and_pipe(cmd)
-    p.wait()
-    if p.returncode != 0:
-        raise RuntimeError("collection failed")
-
+    # p = run_and_pipe(cmd)
+    # p.wait()
+    # if p.returncode != 0:
+    #     raise RuntimeError("collection failed")
+    cmd = " ".join(map(str, cmd))
+    func = partial(run_command)
+    setattr(func, "__name__", f"collection")
+    future = bash_app(func)(cmd, inputs=inputs)
+    inputs = [future]
+    futures.append(future)
+        
     cmd = [
         "python",
         "bin/execute.py",
@@ -139,10 +143,17 @@ def main():
         cmd += [f"--where \"{args.where}\""]
     # cmd = " ".join(map(str, cmd))
     # print(cmd)
-    p = run_and_pipe(cmd)
-    p.wait()
-    if p.returncode != 0:
-        raise RuntimeError("execute failed")
+    # p = run_and_pipe(cmd)
+    # p.wait()
+    # if p.returncode != 0:
+    #     raise RuntimeError("execute failed")
+
+    cmd = " ".join(map(str, cmd))
+    func = partial(run_command)
+    setattr(func, "__name__", f"execute_coadd")
+    future = bash_app(func)(cmd, inputs=inputs)
+    inputs = [future]
+    futures.append(future)
 
     cmd = [
         "python",
@@ -157,11 +168,22 @@ def main():
         cmd += ["--coadd-subset", args.coadd_subset]
     # cmd = " ".join(map(str, cmd))
     # print(cmd)
-    p = run_and_pipe(cmd)
-    p.wait()
-    if p.returncode != 0:
-        raise RuntimeError("collection failed")
+    # p = run_and_pipe(cmd)
+    # p.wait()
+    # if p.returncode != 0:
+    #     raise RuntimeError("collection failed")
+    cmd = " ".join(map(str, cmd))
+    func = partial(run_command)
+    setattr(func, "__name__", f"collection")
+    future = bash_app(func)(cmd, inputs=inputs)
+    inputs = [future]
+    futures.append(future)
 
+    for future in futures:
+        if future:
+            future.exception()
+    
+    parsl.dfk().cleanup()
 
 
 if __name__ == "__main__":
