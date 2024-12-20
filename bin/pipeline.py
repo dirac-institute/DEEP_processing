@@ -28,7 +28,14 @@ pipelines = dict(
     flat="DEEP-flat.yaml",
     science="DEEP-science.yaml",
     drp="DEEP-DRP.yaml",
-    coadd="DEEP-template.yaml",
+    coadd={
+        "mean": "DEEP-mean-template.yaml",
+        "median": "DEEP-median-template.yaml",
+        "meanclip": "DEEP-meanclip-template.yaml",
+        "min": "DEEP-min-template.yaml",
+        "": "DEEP-template.yaml",
+        None: "DEEP-template.yaml",
+    },
     diff_drp="DEEP-DRP.yaml",
 )
 
@@ -51,7 +58,7 @@ def main():
     parser.add_argument("subset") # to support coadd/diff_drp replace nights with subset and add template-type and coadd-subset as an option...
     parser.add_argument("--template-type", default="")
     parser.add_argument("--coadd-subset", default="")
-    parser.add_argument("--steps", nargs="+")
+    parser.add_argument("--steps", nargs="+", default=[])
     parser.add_argument("--where")
     parser.add_argument("--log-level", default="INFO")
     parser.add_argument("--slurm", action="store_true")
@@ -93,6 +100,8 @@ def main():
     )
 
     pipeline = pipelines[args.proc_type]
+    if args.proc_type == "coadd":
+        pipeline = pipeline[args.template_type]
     futures = []
     for collection in collections:
         l = collection.split("/")
