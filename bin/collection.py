@@ -36,7 +36,7 @@ inputs = dict(
         "DEEP/{subset}/drp/raw",
     ],
     coadd=[
-        "DEEP/{subset}/coadd/warps",
+        "DEEP/{subset}/{coadd_subset}/coadd/warps",
         "skymaps",
     ],
     diff_drp=[
