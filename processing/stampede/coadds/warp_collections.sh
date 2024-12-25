@@ -23,6 +23,7 @@ for f in ./data/warp_subsets/*.csv; do
     python bin/warps.py "${REPO}" "allSky/${i}" --where "skymap='discrete' and patch in (${patches})" --collections "DEEP/*/drp" &
 done
 
+wait
+
 $w/bin/db_ctl.sh $REPO stop
 
-disown
