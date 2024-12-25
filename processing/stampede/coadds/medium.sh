@@ -34,7 +34,7 @@ $w/bin/db_ctl.sh $REPO start
 # patches=$(python $w/bin/select_patches.py $w/data/warp_counts_allSky.csv --min 0 --max 50)
 # python $w/bin/pipeline.py $REPO coadd allSky --steps assembleCoadd --where "skymap='discrete' and patch in (${patches})"
 # python $w/bin/coadd.py $REPO allSky --where "skymap='discrete' and patch in (${patches})"
-python $w/bin/coadd_subsets.py $REPO allSky $w/data/warp_subsets --subsets '^6|7|8|9|10|11|12|13$' --workers 8
+python $w/bin/coadd_subsets.py $REPO allSky $w/data/warp_subsets --subsets '^6$|^7$|^8$|^9$|^10$|^11$|^12$|^13$' --workers 8
 
 $w/bin/db_ctl.sh $REPO stop
 
