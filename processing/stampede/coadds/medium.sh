@@ -16,9 +16,9 @@ export PROC_LSST_SITE="stampede" #${PROC_LSST_SITE:-"stampede"}
 export PROC_LSST_QUEUE="multi" # ${PROC_LSST_QUEUE:-"multi"}
 export PROC_LSST_MULTI_QUEUES="local,skx" # ${PROC_LSST_MULTI_QUEUES:-"local,skx"}
 export PROC_LSST_NODES_PER_BLOCK="1" #${PROC_LSST_NODES_PER_BLOCK:-1}
-export PROC_LSST_CORES_PER_NODE="18" # ${PROC_LSST_CORES_PER_NODE:-48}
+export PROC_LSST_CORES_PER_NODE="12" # ${PROC_LSST_CORES_PER_NODE:-48}
 export PROC_LSST_MAX_BLOCKS="5" # ${PROC_LSST_MAX_BLOCKS:-1}
-export J=2 # cores per worker for local
+export J=3 # cores per worker for local
 env | grep PROC_LSST
 
 function cleanup() {
