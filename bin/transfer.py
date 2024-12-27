@@ -42,7 +42,7 @@ def _print(p):
                 print(data, end="", file=sys.stderr)
 
 
-def _copy(cmd, local_directory, remote, remote_directory, opts):
+def _copy(cmd, local_directory, remote, remote_directory):
     ssh_cmd = [
         "ssh",
         remote,
@@ -96,7 +96,7 @@ def _copy_rsync(local_directory, remote, remote_directory, opts):
     ]
     return _copy(cmd, local_directory, remote, remote_directory)
 
-def _copy_bbcp(local_directory, remote, remote_directory):
+def _copy_bbcp(local_directory, remote, remote_directory, opts):
     cmd = [
         "bbcp", 
         "-a", "--mkdir", "--progress", "5", "--recursive", "--symlinks", "follow", 
