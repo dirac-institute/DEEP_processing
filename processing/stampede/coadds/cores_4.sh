@@ -18,6 +18,7 @@ export PROC_LSST_MULTI_QUEUES="local,skx" # ${PROC_LSST_MULTI_QUEUES:-"local,skx
 export PROC_LSST_NODES_PER_BLOCK="1" #${PROC_LSST_NODES_PER_BLOCK:-1}
 export PROC_LSST_CORES_PER_NODE="4" # ${PROC_LSST_CORES_PER_NODE:-48}
 export PROC_LSST_MAX_BLOCKS="7" # ${PROC_LSST_MAX_BLOCKS:-1}
+export PROC_LSST_WALLTIME="12:00:00"
 export J=1 # cores per worker for local
 env | grep PROC_LSST
 
