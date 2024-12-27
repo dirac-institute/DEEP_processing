@@ -133,10 +133,9 @@ def main():
     parser.add_argument("remote", type=str)
     parser.add_argument("remote_directory", type=str)
     parser.add_argument("--method", type=str, default="rsync")
-    parser.add_argument("--opts", nargs="+", type=str, default=[])
-    args = parser.parse_args()
+    args, opts = parser.parse_known_args()
 
-    copy(args.local_directory, args.remote, args.remote_directory, method=args.method, opts=args.opts)
+    copy(args.local_directory, args.remote, args.remote_directory, method=args.method, opts=opts)
 
 
 if __name__ == "__main__":
