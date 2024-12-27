@@ -42,7 +42,7 @@ def _print(p):
                 print(data, end="", file=sys.stderr)
 
 
-def _copy(cmd, local_directory, remote, remote_directory):
+def _copy(cmd, local_directory, remote, remote_directory, opts):
     ssh_cmd = [
         "ssh",
         remote,
@@ -57,7 +57,7 @@ def _copy(cmd, local_directory, remote, remote_directory):
     _print(p)
     return p
 
-def _copy_tar_ssh(local_directory, remote, remote_directory):
+def _copy_tar_ssh(local_directory, remote, remote_directory, opts):
     tar_cmd = [
         "tar", 
         "-chf", "-", 
@@ -77,7 +77,7 @@ def _copy_tar_ssh(local_directory, remote, remote_directory):
     _print(ssh)
     return ssh
 
-def _copy_scp(local_directory, remote, remote_directory):
+def _copy_scp(local_directory, remote, remote_directory, opts):
     cmd = [
         "scp", 
         "-r", 
@@ -86,10 +86,11 @@ def _copy_scp(local_directory, remote, remote_directory):
     ]
     return _copy(cmd, local_directory, remote, remote_directory)
 
-def _copy_rsync(local_directory, remote, remote_directory):
+def _copy_rsync(local_directory, remote, remote_directory, opts):
     cmd = [
         "rsync", 
         "-avL", 
+    ] + opts + [
         ".", 
         f"{remote}:{remote_directory}"
     ]
@@ -104,7 +105,7 @@ def _copy_bbcp(local_directory, remote, remote_directory):
     ]
     return _copy(cmd, local_directory, remote, remote_directory)
 
-def copy(local_directory, remote, remote_directory, method='tar+ssh'):
+def copy(local_directory, remote, remote_directory, method='tar+ssh', opts=[]):
     match method:
         case "tar+ssh":
             call = _copy_tar_ssh
@@ -119,7 +120,7 @@ def copy(local_directory, remote, remote_directory, method='tar+ssh'):
         case _:
             raise Exception(f"copy method {method} not supported")
     t1 = time()
-    p = call(local_directory, remote, remote_directory)
+    p = call(local_directory, remote, remote_directory, opts)
     p.wait()
     t2 = time()
     print(f"[copy] {p.args[0]} returned status code {p.returncode}", file=sys.stderr)
@@ -132,9 +133,10 @@ def main():
     parser.add_argument("remote", type=str)
     parser.add_argument("remote_directory", type=str)
     parser.add_argument("--method", type=str, default="rsync")
+    parser.add_argument("--opts", nargs="+", type=str, default=[])
     args = parser.parse_args()
 
-    copy(args.local_directory, args.remote, args.remote_directory, method=args.method)
+    copy(args.local_directory, args.remote, args.remote_directory, method=args.method, opts=args.opts)
 
 
 if __name__ == "__main__":
