@@ -15,9 +15,9 @@ source $w/bin/setup.sh
 export PROC_LSST_SITE="stampede" #${PROC_LSST_SITE:-"stampede"}
 export PROC_LSST_QUEUE="multi" # ${PROC_LSST_QUEUE:-"multi"}
 export PROC_LSST_MULTI_QUEUES="skx" # ${PROC_LSST_MULTI_QUEUES:-"local,skx"}
-export PROC_LSST_NODES_PER_BLOCK="1" #${PROC_LSST_NODES_PER_BLOCK:-1}
+export PROC_LSST_NODES_PER_BLOCK="2" #${PROC_LSST_NODES_PER_BLOCK:-1}
 export PROC_LSST_CORES_PER_NODE="1" # ${PROC_LSST_CORES_PER_NODE:-48}
-export PROC_LSST_MAX_BLOCKS="7" # ${PROC_LSST_MAX_BLOCKS:-1}
+export PROC_LSST_MAX_BLOCKS="19" # ${PROC_LSST_MAX_BLOCKS:-1}
 export J=1 # cores per worker for local
 env | grep PROC_LSST
 
