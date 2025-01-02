@@ -5,6 +5,8 @@ import sys
 def check_for_retries(butler, run):
     retry_regexes = [
         re.compile(".*MemoryError: std::bad_alloc.*"),
+        re.compile(".*ValueError: Failure from formatter.*std::bad_alloc.*"),
+        re.compile(".*MemoryError: Unable to allocate.*"),
     ]
     
     refs = set(list(butler.registry.queryDatasets("*_log", collections=run)))
