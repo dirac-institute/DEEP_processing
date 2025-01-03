@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eux
 
 cd "${DEEP_PROJECT_DIR}/data/coadd_fixup"
 
@@ -8,12 +9,12 @@ cd "${DEEP_PROJECT_DIR}/data/coadd_fixup"
 } &
 
 {
-    grep -E ".*failed. Exception [a-zA-Z]+:" "${DEEP_PROJECTS_DIR}"/submit/DEEP/allSky/*/coadd/DEEP-template/assembleCoadd/*/logs/assembleCoadd/*/*/*/*.stderr > failures.dat
+    grep -E ".*failed. Exception [a-zA-Z]+:" "${DEEP_PROJECT_DIR}"/submit/DEEP/allSky/*/coadd/DEEP-template/assembleCoadd/*/logs/assembleCoadd/*/*/*/*.stderr > failures.dat
     cat failures.dat | sed -nE "s/.*failed. Exception (.*)/\1/p" | sort | uniq > failure_reasons.dat
 } &
 
 { 
-    grep -E "Found 0 deepCoadd_directWarp|Found 0 deepCoadd_psfMatchedWarp" "${DEEP_PROJECTS_DIR}"/submit/DEEP/allSky/*/coadd/DEEP-template/assembleCoadd/*/logs/assembleCoadd/*/*/*/*.stderr > no_coverage.dat
+    grep -E "Found 0 deepCoadd_directWarp|Found 0 deepCoadd_psfMatchedWarp" "${DEEP_PROJECT_DIR}"/submit/DEEP/allSky/*/coadd/DEEP-template/assembleCoadd/*/logs/assembleCoadd/*/*/*/*.stderr > no_coverage.dat
     cat no_coverage.dat | sed -nE "s/.*band: '([a-zA-Z]+)',.*patch: ([0-9]+).*/\2,\1/p" > no_coverage.csv
 } &
 
