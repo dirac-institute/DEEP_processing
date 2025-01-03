@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eux
+set -eu
 
 cd "${DEEP_PROJECT_DIR}/data/coadd_fixup"
 
