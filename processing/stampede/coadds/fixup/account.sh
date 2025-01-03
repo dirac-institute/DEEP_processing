@@ -2,15 +2,22 @@
 
 cd "${DEEP_PROJECT_DIR}/data/coadd_fixup"
 
-coadd_collections=$(butler query-collections "${REPO}" "DEEP/allSky/*/coadd" | grep "CHAINED" | grep -v "fixup" | awk '{print $1}' | tr '\n' ' ')
-butler collection-chain "${REPO}" DEEP/allSky/coadd DEEP/allSky/coadd/warps skymaps ${coadd_collections}
+{
+    coadd_collections=$(butler query-collections "${REPO}" "DEEP/allSky/*/coadd" | grep "CHAINED" | grep -v "fixup" | awk '{print $1}' | tr '\n' ' ')
+    butler collection-chain "${REPO}" DEEP/allSky/coadd DEEP/allSky/coadd/warps skymaps ${coadd_collections}
+} &
 
-grep -E ".*failed. Exception [a-zA-Z]+:" "${DEEP_PROJECTS_DIR}"/submit/DEEP/allSky/*/coadd/DEEP-template/assembleCoadd/*/logs/assembleCoadd/*/*/*/*.stderr > failures.dat
-cat failures.dat | sed -nE "s/.*failed. Exception (.*)/\1/p" | sort | uniq > failure_reasons.dat
+{
+    grep -E ".*failed. Exception [a-zA-Z]+:" "${DEEP_PROJECTS_DIR}"/submit/DEEP/allSky/*/coadd/DEEP-template/assembleCoadd/*/logs/assembleCoadd/*/*/*/*.stderr > failures.dat
+    cat failures.dat | sed -nE "s/.*failed. Exception (.*)/\1/p" | sort | uniq > failure_reasons.dat
+} &
 
-grep -E "Found 0 deepCoadd_directWarp|Found 0 deepCoadd_psfMatchedWarp" "${DEEP_PROJECTS_DIR}"/submit/DEEP/allSky/*/coadd/DEEP-template/assembleCoadd/*/logs/assembleCoadd/*/*/*/*.stderr > no_coverage.dat
+{ 
+    grep -E "Found 0 deepCoadd_directWarp|Found 0 deepCoadd_psfMatchedWarp" "${DEEP_PROJECTS_DIR}"/submit/DEEP/allSky/*/coadd/DEEP-template/assembleCoadd/*/logs/assembleCoadd/*/*/*/*.stderr > no_coverage.dat
+    cat no_coverage.dat | sed -nE "s/.*band: '([a-zA-Z]+)',.*patch: ([0-9]+).*/\2,\1/p" > no_coverage.csv
+} &
 
-cat no_coverage.dat | sed -nE "s/.*band: '([a-zA-Z]+)',.*patch: ([0-9]+).*/\2,\1/p" > no_coverage.csv
+wait
 
 function inner() {
     band=$1
