@@ -5,7 +5,7 @@ from parsl import bash_app
 from parsl.executors import HighThroughputExecutor
 from functools import partial
 from deep.parsl import run_command
-from deep.parsl import EpycProvider, KloneAstroProvider, run_command
+from deep.parsl import EpycProvider, KloneAstroProvider, KloneA40Provider, run_command
 from subprocess import Popen, PIPE
 import selectors
 import sys
@@ -53,101 +53,125 @@ def run_and_pipe(*args, **kwargs):
 def main():
     import argparse
     import os
+    import lsst.daf.butler as dafButler
+    from lsst.daf.butler.registry import CollectionType
+    import re
 
     parser = argparse.ArgumentParser()
     parser.add_argument("repo")
     parser.add_argument("subset")
+    parser.add_argument("--coadd-subset", required=True, default="")
     parser.add_argument("--template-type", default="")
-    parser.add_argument("--coadd-subset", default="")
     parser.add_argument("--where")
     parser.add_argument("--collections", nargs="+", default=[])
+    parser.add_argument("--log-level", default="INFO")
+    parser.add_argument("--slurm", action="store_true")
+    parser.add_argument("--pipeline-slurm", action="store_true")
+    parser.add_argument("--provider", default="EpycProvider")
+    parser.add_argument("--workers", "-J", type=int, default=4)
     
     args = parser.parse_args()
 
-    # for dataset_type in ["deepCoadd_directWarp", "deepCoadd_psfMatchedWarp"]:
-    #     cmd = [
-    #         "butler",
-    #         "associate",
-    #         args.repo,
-    #         f"DEEP/{args.subset}/coadd/warps",
-    #         "--dataset-type", dataset_type,
-    #     ]
-    #     if args.collections:
-    #         cmd += ["--collections", args.collections]
-    #     if args.where:
-    #         cmd += [f"--where '{args.where}'"]
-    #     cmd = " ".join(map(str, cmd))
-    #     print(cmd)
+    htex_label = "htex"
+    executor_kwargs = dict()
+    
+    if args.slurm:
+        provider = KloneA40Provider(max_blocks=args.workers)
+    else:
+        provider = EpycProvider(max_blocks=1)
+        executor_kwargs = dict(
+            max_workers=args.workers
+        )
+    
+    executor_kwargs['provider'] = provider
+    config = parsl.Config(
+        executors=[
+            HighThroughputExecutor(
+                label=htex_label,
+                **executor_kwargs,
+            )
+        ],
+        run_dir=os.path.join("runinfo", "diff"),
+    )
+    parsl.load(config)
 
-    # cmd = [
-    #     "python",
-    #     "bin/warps.py",
-    #     args.repo,
-    #     os.path.normpath(f"{args.subset}/{args.coadd_subset}"),
-    # ]
-    # if args.collections:
-    #     cmd += ["--collections"] + args.collections
-    # if args.where:
-    #     cmd += ['--where', args.where]
-    # # cmd = " ".join(map(str, cmd))
-    # # print(cmd)
-    # p = run_and_pipe(cmd)
-    # p.wait()
-    # if p.returncode != 0:
-    #     raise RuntimeError("warps failed")
+    butler = dafButler.Butler(args.repo)
+    collections = butler.registry.queryCollections(
+        re.compile("DEEP/[0-9]{8}/drp"), 
+        collectionTypes=CollectionType.CHAINED
+    )
+    subsets = list(filter(lambda x : re.compile(args.subset).match(x) is not None, map(lambda x : x.split("/")[1], collections)))
 
-    cmd = [
-        "python",
-        "bin/collection.py",
-        args.repo,
-        "diff_drp",
-        args.subset,
-    ]
-    if args.template_type:
-        cmd += ["--template-type", args.template_type]
-    if args.coadd_subset:
-        cmd += ["--coadd-subset", args.coadd_subset]
-    # cmd = " ".join(map(str, cmd))
-    # print(cmd)
-    p = run_and_pipe(cmd)
-    p.wait()
-    if p.returncode != 0:
-        raise RuntimeError("collection failed")
+    futures = [] # chage to dictionary
 
-    cmd = [
-        "python",
-        "bin/execute.py",
-        args.repo,
-        os.path.normpath(f"DEEP/{args.subset}/{args.coadd_subset}/{args.template_type}/diff_drp"),
-        "--pipeline", f"./pipelines/DEEP-DRP.yaml#step4a",
-    ]
-    if args.where:
-        cmd += [f"--where \"{args.where}\""]
-    # cmd = " ".join(map(str, cmd))
-    # print(cmd)
-    p = run_and_pipe(cmd)
-    p.wait()
-    if p.returncode != 0:
-        raise RuntimeError("execute failed")
+    for subset in subsets:
+        inputs = []
+        cmd = [
+            "python",
+            "bin/collection.py",
+            args.repo,
+            "diff_drp",
+            subset,
+        ]
+        if args.template_type:
+            cmd += ["--template-type", args.template_type]
+        if args.coadd_subset:
+            cmd += ["--coadd-subset", args.coadd_subset]
 
-    cmd = [
-        "python",
-        "bin/collection.py",
-        args.repo,
-        "diff_drp",
-        args.subset,
-    ]
-    if args.template_type:
-        cmd += ["--template-type", args.template_type]
-    if args.coadd_subset:
-        cmd += ["--coadd-subset", args.coadd_subset]
-    # cmd = " ".join(map(str, cmd))
-    # print(cmd)
-    p = run_and_pipe(cmd)
-    p.wait()
-    if p.returncode != 0:
-        raise RuntimeError("collection failed")
+        cmd = " ".join(map(str, cmd))
+        func = partial(run_command)
+        setattr(func, "__name__", f"collection")
+        future = bash_app(func)(cmd, inputs=inputs)
+        inputs = [future]
+        futures.append(future)
 
+        cmd = [
+            "python",
+            "bin/pipeline.py",
+            args.repo,
+            "diff_drp",
+            subset,
+            "--steps", "step4a"
+        ]
+        if args.template_type:
+            cmd += ["--template-type", args.template_type]
+        if args.coadd_subset:
+            cmd += ["--coadd-subset", args.coadd_subset]
+        if args.where:
+            cmd += [f"--where \"{args.where}\""]
+
+        cmd = " ".join(map(str, cmd))
+        func = partial(run_command)
+        setattr(func, "__name__", f"execute_diff")
+        future = bash_app(func)(cmd, inputs=inputs)
+        inputs = [future]
+        futures.append(future)
+
+
+        cmd = [
+            "python",
+            "bin/collection.py",
+            args.repo,
+            "diff_drp",
+            subset,
+        ]
+        if args.template_type:
+            cmd += ["--template-type", args.template_type]
+        if args.coadd_subset:
+            cmd += ["--coadd-subset", args.coadd_subset]
+
+        cmd = " ".join(map(str, cmd))
+        func = partial(run_command)
+        setattr(func, "__name__", f"collection")
+        future = bash_app(func)(cmd, inputs=inputs)
+        inputs = [future]
+        futures.append(future)
+
+    for future in futures:
+        if future:
+            future.exception()
+    
+    parsl.dfk().cleanup()
 
 
 if __name__ == "__main__":
