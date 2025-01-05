@@ -13,9 +13,9 @@ atexit.register(cleanup)
 
 def popen(*args, **kwargs):
     global processes
+    print("popen: " + " ".join(*args), file=sys.stderr)
     p = Popen(*args, **kwargs)
     # p = Popen("echo", **kwargs)
-    print("popen: " + " ".join(*args), file=sys.stderr)
     processes.append(p)
     return p
 
@@ -61,10 +61,11 @@ def main():
             "python",
             "bin/warps.py",
             args.repo,
-            "allSky/fixup",
+            args.output_collection,
             "--collections", args.collections,
             "--where", f"instrument='DECam' and skymap='discrete' and patch={patch} and band='{band}' and visit not in ({visits})",
         ]
+        print(cmd)
         run_and_pipe(cmd)
 
 

@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 from joblib import Parallel, delayed
 from tqdm import tqdm
+from lsst.daf.butler.registry import CollectionType
 
 def main():
     parser = argparse.ArgumentParser()
@@ -19,15 +20,17 @@ def main():
 
     butler = dafButler.Butler(args.repo)
 
-    patches = butler.registry.queryDimensionRecords("patch", where="instrument='DECam' and skymap='discrete' and detector=31")
+    # patches = butler.registry.queryDimensionRecords("patch", where="instrument='DECam' and skymap='discrete' and detector=31")
+    patches = butler.registry.queryDimensionRecords("patch", datasets="deepCoadd", collections=butler.registry.queryCollections("DEEP/allSky/*/coadd", collectionTypes=CollectionType.CHAINED))
     # p = iter(butler.registry.queryDimensionRecords("patch", where="instrument='DECam' and skymap='discrete' and detector=31"))
     # patches = [next(iter(butler.registry.queryDimensionRecords("patch", where="instrument='DECam' and skymap='discrete' and detector=31")))]
     # patches = [next(p), next(p)]
+    # patches = [next(iter(patches))]
     # print(patches)
 
     def inner(patch_id):
-        detectors = butler.registry.queryDimensionRecords("detector", where=f"instrument='DECam' and skymap='discrete' and patch={patch_id}")
-        c = Counter(list(map(lambda x : x.id, detectors)))
+        detectors = butler.registry.queryDimensionRecords("visit_detector_region", where=f"instrument='DECam' and skymap='discrete' and patch={patch_id}")
+        c = Counter(list(map(lambda x : x.detector, detectors)))
         return patch_id, c[args.detector]/sum(c.values())
 
     ratios = {}
