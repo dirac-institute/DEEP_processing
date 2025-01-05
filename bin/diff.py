@@ -120,7 +120,7 @@ def main():
 
         cmd = " ".join(map(str, cmd))
         func = partial(run_command)
-        setattr(func, "__name__", f"collection")
+        setattr(func, "__name__", f"collection_{subset}")
         future = bash_app(func)(cmd, inputs=inputs)
         inputs = [future]
         futures.append(future)
@@ -142,7 +142,7 @@ def main():
 
         cmd = " ".join(map(str, cmd))
         func = partial(run_command)
-        setattr(func, "__name__", f"execute_diff")
+        setattr(func, "__name__", f"pipeline_diff_{subset}")
         future = bash_app(func)(cmd, inputs=inputs)
         inputs = [future]
         futures.append(future)
@@ -162,7 +162,7 @@ def main():
 
         cmd = " ".join(map(str, cmd))
         func = partial(run_command)
-        setattr(func, "__name__", f"collection")
+        setattr(func, "__name__", f"collection_{subset}")
         future = bash_app(func)(cmd, inputs=inputs)
         inputs = [future]
         futures.append(future)

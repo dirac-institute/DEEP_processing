@@ -2,7 +2,6 @@
 #SBATCH --partition=skx
 #SBATCH --time=48:00:00
 #SBATCH --nodes=1
-set -eu
 
 w=$DEEP_PROJECT_DIR
 cd $w
