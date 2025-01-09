@@ -1,6 +1,6 @@
-export PROC_LSST_DIR="/work2/10000/stetzler/stampede3/proc_lsst"
-export OPT_LSST_DIR="/work2/10000/stetzler/stampede3/opt_lsst"
-export PATH="/work2/10000/stetzler/stampede3/opt_lsst/conda/envs/postgres/bin:$PATH"
+export PROC_LSST_DIR="/scratch/10000/stetzler/stampede3/proc_lsst"
+export OPT_LSST_DIR="/scratch/10000/stetzler/stampede3/opt_lsst"
+export PATH="/scratch/10000/stetzler/stampede3/opt_lsst/conda/envs/postgres/bin:$PATH"
 export PROC_LSST_QUEUE="skx"
 export PROC_LSST_SITE="stampede"
 
