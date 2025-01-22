@@ -43,7 +43,7 @@ function inner() {
     echo "${band}" && diff "patches_${band}_not_fixed.dat" "patches_${band}_accounted.dat"
 }
 
-bands="i r VR"
+bands="i r y"
 for band in ${bands}; do
     inner "${band}" &
 done

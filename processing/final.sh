@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-#SBATCH --partition=skx
-#SBATCH --time=4:00:00
+#SBATCH --partition=skx-dev
+#SBATCH --time=1:00:00
 #SBATCH --nodes=1
 
 w=$DEEP_PROJECT_DIR

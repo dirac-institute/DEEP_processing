@@ -127,8 +127,11 @@ def parse_workflow(execute):
         step = ""
     elif len(split) == 3:
         subset, proc, step = split
+    elif len(split) == 4:
+        subset, step = split[0], split[-1]
+        proc = "_".join(split[1:3])
     else:
-        raise Exception()
+        raise Exception(f"{split} does not fit format")
         
     run_id = ""
     run_info_prefix = ""

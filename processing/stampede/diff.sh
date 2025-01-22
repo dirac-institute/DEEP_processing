@@ -21,13 +21,14 @@ $w/bin/db_ctl.sh $REPO start
 export PROC_LSST_SITE="stampede" #${PROC_LSST_SITE:-"stampede"}
 export PROC_LSST_QUEUE="multi" # ${PROC_LSST_QUEUE:-"multi"}
 export PROC_LSST_MULTI_QUEUES="local,skx" # ${PROC_LSST_MULTI_QUEUES:-"local,skx"}
-export PROC_LSST_NODES_PER_BLOCK="1" #${PROC_LSST_NODES_PER_BLOCK:-1}
-export PROC_LSST_CORES_PER_NODE="48" # ${PROC_LSST_CORES_PER_NODE:-48}
+export PROC_LSST_NODES_PER_BLOCK="2" #${PROC_LSST_NODES_PER_BLOCK:-1}
+export PROC_LSST_CORES_PER_NODE="16" # ${PROC_LSST_CORES_PER_NODE:-48}
 export PROC_LSST_MAX_BLOCKS="9" # ${PROC_LSST_MAX_BLOCKS:-1}
-export PROC_LSST_WALLTIME="8:00:00"
-export J=12 # cores per worker for local
+export PROC_LSST_WALLTIME="12:00:00"
+export J=4 # cores per worker for local
 env | grep PROC_LSST
 
-python bin/diff.py $REPO "20190401|20190402|20190403|20190504" --coadd-subset allSky --workers 4
+set -u
+python bin/diff.py $REPO "$1" --coadd-subset allSky --workers 4
 
 cleanup

@@ -1,6 +1,6 @@
-export PROC_LSST_DIR="/scratch/10000/stetzler/proc_lsst"
-export OPT_LSST_DIR="/scratch/10000/stetzler/opt_lsst"
-export PATH="/scratch/10000/stetzler/opt_lsst/conda/envs/postgres/bin:$PATH"
+export PROC_LSST_DIR="$INSTALL_PREFIX/proc_lsst"
+export OPT_LSST_DIR="$INSTALL_PREFIX/opt_lsst"
+export PATH="$INSTALL_PREFIX/opt_lsst/conda/envs/postgres/bin:$PATH"
 export PROC_LSST_QUEUE="skx"
 export PROC_LSST_SITE="stampede"
 
