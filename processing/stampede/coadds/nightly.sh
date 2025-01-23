@@ -32,6 +32,6 @@ echo "${nights}" | xargs -I % -P 4 python bin/warps.py "${REPO}" % --collections
 echo "${nights}" | xargs -I % -P 4 python bin/collection.py "${REPO}" coadd %
 selection=$(echo "$nights" | python -c "import sys; print('(' + '|'.join(sum(map(lambda x : x.split(), sys.stdin.readlines()), [])) + ')')")
 
-python bin/pipeline.py "${REPO}" coadd "${selection}" --workers 4
+python bin/pipeline.py "${REPO}" coadd "${selection}" --steps assembleCoadd --workers 4
 
 cleanup
