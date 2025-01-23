@@ -28,8 +28,8 @@ trap cleanup SIGEXIT
 $w/bin/db_ctl.sh $REPO start
 
 nights=$(echo "$@" | tr ' ' '\n')
-echo "${nights}" | xargs -I % python bin/warps.py "${REPO}" % --collections DEEP/%/drp --where "instrument='DECam' and detector not in (31, 61)"
-echo "${nights}" | xargs -I % python bin/collection.py "${REPO}" coadd %
+echo "${nights}" | xargs -I % -P 4 python bin/warps.py "${REPO}" % --collections DEEP/%/drp --where "instrument='DECam' and detector not in (31, 61)"
+echo "${nights}" | xargs -I % -P 4 python bin/collection.py "${REPO}" coadd %
 selection=$(echo "$nights" | python -c "import sys; print('(' + '|'.join(sum(map(lambda x : x.split(), sys.stdin.readlines()), [])) + ')')")
 
 python bin/pipeline.py "${REPO}" coadd "${selection}" --workers 4
