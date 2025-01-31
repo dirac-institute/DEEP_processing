@@ -13,7 +13,7 @@ exclude=(
     --exclude "cpBiasIsrExp" 
     --exclude "cpFlatIsrExp"
     --exclude "deepDiff_templateExp"
-    --exclude "deepDiff_matchedExp"
+#    --exclude "deepDiff_matchedExp"
     --exclude "deepDiff_differenceTempExp"
 )
 

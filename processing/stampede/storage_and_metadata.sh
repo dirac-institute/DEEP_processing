@@ -22,6 +22,8 @@ set -u
 prefix=$1
 runs=$(butler query-collections $REPO --collection-type RUN | grep RUN | awk '{print $1}')
 echo "$runs" | xargs -P 48 -I % mkdir -p ${prefix}/%
-echo "$runs" | xargs -P 40 -I % python bin/size.py $REPO "*" --agg --collections % --output ${prefix}/%/size.csv 
+echo "$runs" | xargs -P 40 -I % python bin/size.py $REPO "*" --agg --collections % --output ${prefix}/%/size.csv & 
+echo "$runs" | xargs -P 40 -I % python bin/metadata.py $REPO --collections % --output ${prefix}/%/metadata.csv &
+wait
 
 cleanup

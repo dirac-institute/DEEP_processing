@@ -16,7 +16,7 @@ def main():
     args = parser.parse_args()
 
     butler = dafButler.Butler(args.repo)
-    collections = butler.registry.queryCollections(args.collections)
+    collections = butler.registry.queryCollections(re.compile(args.collections))
 
     refs = []
     for task in args.tasks:
