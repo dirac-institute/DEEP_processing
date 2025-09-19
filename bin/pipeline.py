@@ -111,7 +111,7 @@ def main():
         for step in args.steps:
             cmd = [
                 "python",
-                "bin/collection.py",
+                f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/collection.py",
                 args.repo,
                 args.proc_type,
                 subset,
@@ -130,10 +130,10 @@ def main():
 
             cmd = [
                 "python",
-                "bin/execute.py",
+                f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/execute.py",
                 args.repo,
                 collection,
-                "--pipeline", f"./pipelines/{pipeline}#{step}",
+                "--pipeline", f"{os.environ.get('DEEP_PROJECT_DIR')}/pipelines/{pipeline}#{step}",
             ]
             if args.where:
                 cmd += [f"--where \"{args.where}\""]
@@ -147,7 +147,7 @@ def main():
             # in case the final job never ran...?
             cmd = [
                 "python",
-                "bin/collection.py",
+                f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/collection.py",
                 args.repo,
                 args.proc_type,
                 subset,

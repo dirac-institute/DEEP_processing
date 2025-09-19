@@ -341,6 +341,11 @@ subsets:
     - calibrate
     - transformPreSourceTable
     - writePreSourceTable
+  step1b:
+    subset:
+    - isr
+    - characterizeImage
+    - calibrate    
   step2a:  # visit
     - consolidatePreSourceTable
     - consolidateVisitSummary

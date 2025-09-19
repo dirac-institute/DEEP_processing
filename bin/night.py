@@ -71,7 +71,7 @@ def main():
         for proc_type in args.proc_types:
             cmd = [
                 "python",
-                "bin/ingest.py",
+                f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/ingest.py",
                 args.exposures,
                 "-b", args.repo,
                 "--image-dir", "./data/images",
@@ -86,7 +86,7 @@ def main():
         
             cmd = [
                 "python",
-                "bin/raw.py",
+                f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/raw.py",
                 args.repo,
                 proc_type,
                 night
@@ -100,7 +100,7 @@ def main():
         
             cmd = [
                 "python",
-                "bin/collection.py",
+                f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/collection.py",
                 args.repo,
                 proc_type,
                 night
@@ -130,7 +130,7 @@ def main():
                 steps = ["step1", "step2"]
                 cmd = [
                     "python",
-                    "bin/pipeline.py",
+                    f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/pipeline.py",
                     args.repo,
                     proc_type,
                     night,
@@ -162,7 +162,7 @@ def main():
 
                 cmd = [
                     "python",
-                    "bin/decertify.py",
+                    f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/decertify.py",
                     args.repo,
                     f"DEEP/{night}/calib/{proc_type}",
                     proc_type,
@@ -198,7 +198,7 @@ def main():
                 steps = ["step0", "step1", "step2", "step3"]
                 cmd = [
                     "python",
-                    "bin/pipeline.py",
+                    f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/pipeline.py",
                     args.repo,
                     proc_type,
                     night,
@@ -218,7 +218,7 @@ def main():
 
                 cmd = [
                     "python",
-                    "bin/decertify.py",
+                    f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/decertify.py",
                     args.repo,
                     f"DEEP/{night}/calib/{proc_type}",
                     proc_type,
@@ -259,7 +259,7 @@ def main():
                     raise Exception(f"unsupported proc type {proc_type}")
                 cmd = [
                     "python",
-                    "bin/pipeline.py",
+                    f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/pipeline.py",
                     args.repo,
                     proc_type,
                     night,

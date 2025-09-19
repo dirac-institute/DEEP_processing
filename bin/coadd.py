@@ -65,6 +65,7 @@ pipeline_lookup = {
 }
 
 def main():
+    # loop over subsets?
     import argparse
     import os
 
@@ -110,7 +111,7 @@ def main():
     inputs = []
     cmd = [
         "python",
-        "bin/collection.py",
+        f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/collection.py",
         args.repo,
         "coadd",
         args.coadd_name,
@@ -134,10 +135,10 @@ def main():
         
     cmd = [
         "python",
-        "bin/execute.py",
+        f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/execute.py",
         args.repo,
         os.path.normpath(f"DEEP/{args.coadd_name}/{args.coadd_subset}/coadd/{args.template_type}"),
-        "--pipeline", f"./pipelines/{pipeline_lookup[args.template_type]}#assembleCoadd",
+        "--pipeline", f"{os.environ.get('DEEP_PROJECT_DIR')}/pipelines/{pipeline_lookup[args.template_type]}#assembleCoadd",
     ]
     if args.where:
         cmd += [f"--where \"{args.where}\""]
@@ -157,7 +158,7 @@ def main():
 
     cmd = [
         "python",
-        "bin/collection.py",
+        f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/collection.py",
         args.repo,
         "coadd",
         args.coadd_name,

@@ -69,6 +69,7 @@ def main():
     parser.add_argument("--pipeline-slurm", action="store_true")
     parser.add_argument("--provider", default="EpycProvider")
     parser.add_argument("--workers", "-J", type=int, default=4)
+    parser.add_argument("--prune", action="store_true")
     
     args = parser.parse_args()
 
@@ -108,7 +109,7 @@ def main():
         inputs = []
         cmd = [
             "python",
-            "bin/collection.py",
+            f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/collection.py",
             args.repo,
             "diff_drp",
             subset,
@@ -127,7 +128,7 @@ def main():
 
         cmd = [
             "python",
-            "bin/pipeline.py",
+            f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/pipeline.py",
             args.repo,
             "diff_drp",
             subset,
@@ -150,7 +151,7 @@ def main():
 
         cmd = [
             "python",
-            "bin/collection.py",
+            f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/collection.py",
             args.repo,
             "diff_drp",
             subset,
@@ -166,6 +167,23 @@ def main():
         future = bash_app(func)(cmd, inputs=inputs)
         inputs = [future]
         futures.append(future)
+
+        if args.prune:
+            parent = os.path.normpath(f"DEEP/{subset}/{args.coadd_subset}/{args.template_type}/diff_drp")
+            cmd = [
+                "python",
+                f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/prunePrerequisites.py",
+                args.repo,
+                parent,
+                "deepDiff_differenceExp",
+            ]
+
+            cmd = " ".join(map(str, cmd))
+            func = partial(run_command)
+            setattr(func, "__name__", f"prune_{subset}")
+            future = bash_app(func)(cmd, inputs=inputs)
+            inputs = [future]
+            futures.append(future)
 
     for future in futures:
         if future:

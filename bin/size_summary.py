@@ -16,6 +16,7 @@ def main():
     tables = []
     for path in args.prefix.rglob("size.csv"):
         collection = str(path.relative_to(args.prefix).parent)
+        # print(collection)
         if re.compile(args.collections).match(collection):
             tables.append(astropy.table.Table.read(path))
     

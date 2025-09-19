@@ -121,7 +121,7 @@ def main():
         inputs = []
         cmd = [
             "python",
-            "bin/collection.py",
+            f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/collection.py",
             args.repo,
             "coadd",
             args.coadd_name,
@@ -141,7 +141,7 @@ def main():
 
         cmd = [
             "python",
-            "bin/pipeline.py",
+            f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/pipeline.py",
             args.repo,
             "coadd",
             args.coadd_name,
@@ -164,7 +164,7 @@ def main():
 
         cmd = [
             "python",
-            "bin/collection.py",
+            f"{os.environ.get('DEEP_PROJECT_DIR')}/bin/collection.py",
             args.repo,
             "coadd",
             args.coadd_name,

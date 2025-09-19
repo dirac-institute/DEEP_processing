@@ -40,8 +40,8 @@ inputs = dict(
         "skymaps",
     ],
     diff_drp=[
-        "DEEP/{coadd_subset}/{template_type}/coadd", # coadds
-        "DEEP/{subset}/drp", # calexp
+        "DEEP/{coadd_subset}/{template_type}/coadd", # coadds TAGGED
+        "DEEP/{subset}/drp", # calexp CHAINED
     ]
 )
 
